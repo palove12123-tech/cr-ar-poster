@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CR Knowledge AR</title>
+    
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; }
+        /* ปุ่มสำหรับให้ผู้ใช้กดเพื่อให้เสียงวิดีโอเล่น (เบราว์เซอร์มือถือบังคับว่าต้องกดจิ้มจอก่อนเสียงถึงจะดัง) */
+        #ui {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; padding: 10px 20px; background: rgba(0,0,0,0.7);
+            color: white; border: none; border-radius: 5px; font-family: sans-serif; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="ui">🔊 เปิดเสียงวิดีโอ</button>
+
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <video id="crVideo" src="./cr-mascot.mp4" preload="auto" loop="true" response-type="arraybuffer" crossorigin="anonymous" playsinline webkit-playsinline></video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-video src="#crVideo" width="1" height="0.55" position="0 0 0" rotation="0 0 0"></a-video>
+        </a-entity>
+
+    </a-scene>
+
+    <script>
+        // ระบบควบคุมให้วิดีโอเล่นอัตโนมัติเมื่อกล้องส่องเจอโปสเตอร์
+        const showTarget = document.querySelector('[mindar-image-target]');
+        const video = document.querySelector('#crVideo');
+        const button = document.querySelector('#ui');
+
+        showTarget.addEventListener("targetFound", event => {
+            console.log("เจอโปสเตอร์แล้ว!");
+            video.play();
+        });
+
+        showTarget.addEventListener("targetLost", event => {
+            console.log("หลุดจากหน้าโปสเตอร์");
+            video.pause();
+        });
+
+        // เปิดเสียงเมื่อผู้ใช้กดปุ่ม UI
+        button.addEventListener('click', () => {
+            video.muted = false;
+            button.style.display = 'none'; // กดแล้วซ่อนปุ่มไป
+        });
+    </script>
+</body>
+</html>
